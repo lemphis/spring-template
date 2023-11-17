@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "3.0.6"
 	id("io.spring.dependency-management") version "1.1.0"
+	id("org.asciidoctor.jvm.convert") version "3.3.2"
 	kotlin("jvm") version "1.7.22"
 	kotlin("plugin.spring") version "1.7.22"
 	kotlin("plugin.jpa") version "1.7.22"
@@ -16,13 +17,50 @@ repositories {
 	mavenCentral()
 }
 
+val asciidoctorExt: Configuration by configurations.creating
+val snippetsDir by extra { file("build/generated-snippets") }
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	runtimeOnly("com.mysql:mysql-connector-j")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+	asciidoctorExt("org.springframework.restdocs:spring-restdocs-asciidoctor")
+}
+
+tasks.test {
+	outputs.dir(snippetsDir)
+}
+
+tasks.asciidoctor {
+	inputs.dir(snippetsDir)
+	configurations("asciidoctorExt")
+	dependsOn(tasks.test)
+	doFirst {
+		delete {
+			file("src/main/resources/static/docs")
+		}
+	}
+}
+
+tasks.register("copyDocument", Copy::class) {
+	dependsOn(tasks.asciidoctor)
+	from(file("build/docs/asciidoc"))
+	into(file("src/main/resources/static/docs"))
+}
+
+tasks.build {
+	finalizedBy("copyDocument")
+}
+
+tasks.bootJar {
+	dependsOn(tasks.asciidoctor)
+	from(file("build/docs/asciidoc"))
+	into(file("src/main/resources/static/docs"))
 }
 
 tasks.withType<KotlinCompile> {
@@ -34,4 +72,8 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.jar {
+	enabled = false
 }
