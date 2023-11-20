@@ -19,6 +19,11 @@ repositories {
 
 val asciidoctorExt: Configuration by configurations.creating
 val snippetsDir by extra { file("build/generated-snippets") }
+val srcDocsFilePath = "build/docs/asciidoc"
+val destDocsFilePath = "src/main/resources/static/docs"
+val copyDocumentTaskName = "copyDocument"
+val jarName = "template.jar"
+
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -42,25 +47,19 @@ tasks.asciidoctor {
 	dependsOn(tasks.test)
 	doFirst {
 		delete {
-			file("src/main/resources/static/docs")
+			file(destDocsFilePath)
 		}
 	}
 }
 
-tasks.register("copyDocument", Copy::class) {
+tasks.register(copyDocumentTaskName, Copy::class) {
 	dependsOn(tasks.asciidoctor)
-	from(file("build/docs/asciidoc"))
-	into(file("src/main/resources/static/docs"))
+	from(file(srcDocsFilePath))
+	into(file(destDocsFilePath))
 }
 
 tasks.build {
-	finalizedBy("copyDocument")
-}
-
-tasks.bootJar {
-	dependsOn(tasks.asciidoctor)
-	from(file("build/docs/asciidoc"))
-	into(file("src/main/resources/static/docs"))
+	dependsOn(tasks.getByName(copyDocumentTaskName))
 }
 
 tasks.withType<KotlinCompile> {
@@ -76,4 +75,8 @@ tasks.withType<Test> {
 
 tasks.jar {
 	enabled = false
+}
+
+tasks.bootJar {
+	archiveFileName.set(jarName)
 }
