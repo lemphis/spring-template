@@ -1,12 +1,16 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+	val kotlinVersion = "1.7.22"
+
 	id("org.springframework.boot") version "3.0.6"
 	id("io.spring.dependency-management") version "1.1.0"
 	id("org.asciidoctor.jvm.convert") version "3.3.2"
-	kotlin("jvm") version "1.7.22"
-	kotlin("plugin.spring") version "1.7.22"
-	kotlin("plugin.jpa") version "1.7.22"
+	kotlin("jvm") version kotlinVersion
+	kotlin("plugin.spring") version kotlinVersion
+	kotlin("plugin.jpa") version kotlinVersion
+	kotlin("plugin.allopen") version kotlinVersion
+	kotlin("kapt") version kotlinVersion
 }
 
 group = "me.lemphis"
@@ -26,7 +30,14 @@ val srcDocsFilePath = "build/docs/asciidoc"
 val destDocsFilePath = "src/main/resources/static/docs"
 val copyDocumentTaskName = "copyDocument"
 val jarName = "template.jar"
+val querydslVersion = "5.0.0"
+val mysqlVersion = "8.0.28"
 
+allOpen {
+	annotation("jakarta.persistence.Entity")
+	annotation("jakarta.persistence.MappedSuperclass")
+	annotation("jakarta.persistence.Embeddable")
+}
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -34,7 +45,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	runtimeOnly("com.mysql:mysql-connector-j")
+	implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
+	kapt("com.querydsl:querydsl-apt:${querydslVersion}:jakarta")
+	runtimeOnly("mysql:mysql-connector-java:$mysqlVersion")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 	asciidoctorExt("org.springframework.restdocs:spring-restdocs-asciidoctor")
