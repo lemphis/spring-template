@@ -1,15 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	val kotlinVersion = "1.7.22"
+	val kotlinVersion = "1.9.20"
 
-	id("org.springframework.boot") version "3.0.6"
-	id("io.spring.dependency-management") version "1.1.0"
+	id("org.springframework.boot") version "3.2.0"
+	id("io.spring.dependency-management") version "1.1.4"
 	id("org.asciidoctor.jvm.convert") version "3.3.2"
 	kotlin("jvm") version kotlinVersion
 	kotlin("plugin.spring") version kotlinVersion
-	kotlin("plugin.jpa") version kotlinVersion
-	kotlin("plugin.allopen") version kotlinVersion
 	kotlin("kapt") version kotlinVersion
 }
 
@@ -30,23 +28,18 @@ val srcDocsFilePath = "build/docs/asciidoc"
 val destDocsFilePath = "src/main/resources/static/docs"
 val copyDocumentTaskName = "copyDocument"
 val jarName = "template.jar"
-val querydslVersion = "5.0.0"
 val mysqlVersion = "8.0.28"
-
-allOpen {
-	annotation("jakarta.persistence.Entity")
-	annotation("jakarta.persistence.MappedSuperclass")
-	annotation("jakarta.persistence.Embeddable")
-}
+val exposedVersion = "0.45.0"
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
-	kapt("com.querydsl:querydsl-apt:${querydslVersion}:jakarta")
+	implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+	implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+	implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+	implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 	runtimeOnly("mysql:mysql-connector-java:$mysqlVersion")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
