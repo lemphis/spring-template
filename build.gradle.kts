@@ -27,7 +27,7 @@ val snippetsDir by extra { file("build/generated-snippets") }
 val srcDocsFilePath = "build/docs/asciidoc"
 val destDocsFilePath = "src/main/resources/static/docs"
 val copyDocumentTaskName = "copyDocument"
-val jarName = "template.jar"
+val jarName = "spring-template.jar"
 val mysqlVersion = "8.0.28"
 val exposedVersion = "0.45.0"
 
