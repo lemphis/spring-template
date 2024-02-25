@@ -1,11 +1,16 @@
-version: "3"
+version: '3'
 
 services:
   mysql:
-    container_name: mysql
-    image: mysql:8.0.32
-    ports:
-      - "3306:3306"
+    image: mysql:8.0.29
+    container_name: mysql-8.0.29
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: demo
+      MYSQL_DATABASE: service
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
